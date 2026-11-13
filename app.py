@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 st.write("CMDQ Team")
+st.markdown("===========")   
 st.set_page_config(page_title="Simple Sales Analysis", layout="wide")
 
 REQUIRED_COLUMNS = ["date", "region", "product", "units", "unit_price", "revenue"]
