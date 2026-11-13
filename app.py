@@ -1,3 +1,6 @@
+import hmac
+
+
 import pandas as pd
 import streamlit as st
 st.write("CMDQ Team")
@@ -5,6 +8,36 @@ st.markdown("**===============**")
 st.divider()
 
 st.set_page_config(page_title="Simple Sales Analysis", layout="wide")
+
+
+
+def check_password() -> bool:
+    """Show a login form and return True once the right password is entered."""
+    if st.session_state.get("password_ok"):
+        return True
+
+    placeholder = st.empty()
+    with placeholder.form("login"):
+        st.subheader("Please log in")
+        entered = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
+
+    if submitted:
+        if hmac.compare_digest(entered, st.secrets["password"]):
+            st.session_state["password_ok"] = True
+            placeholder.empty()
+            return True
+        st.error("Incorrect password")
+    return False
+
+
+if not check_password():
+    st.stop()
+
+
+
+
+
 
 REQUIRED_COLUMNS = ["date", "region", "product", "units", "unit_price", "revenue"]
 
