@@ -283,6 +283,59 @@ sudo journalctl -u streamlit -n 30 --no-pager    # last 30 log lines, including 
 ```
 
 ---
+1. Put the password on the server
+
+Connect to the server and run these, choosing your own password:
+
+mkdir -p ~/st_app_aws/.streamlit
+echo 'password = "ChooseAStrongPassword"' > ~/st_app_aws/.streamlit/secrets.toml
+
+
+
+2. Add the login form to app.py
+
+On GitHub, edit app.py. Add import hmac at the top with the other imports, then paste this block directly after the st.set_page_config(...) line:
+
+python
+def check_password() -> bool:
+    """Show a login form and return True once the right password is entered."""
+    if st.session_state.get("password_ok"):
+        return True
+
+    placeholder = st.empty()
+    with placeholder.form("login"):
+        st.subheader("Please log in")
+        entered = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
+
+    if submitted:
+        if hmac.compare_digest(entered, st.secrets["password"]):
+            st.session_state["password_ok"] = True
+            placeholder.empty()
+            return True
+        st.error("Incorrect password")
+    return False
+
+
+if not check_password():
+    st.stop()
+
+Everything below this block only runs after a correct login. Commit the change.
+
+3. Update the server
+bash
+cd ~/st_app_aws
+git pull
+sudo systemctl restart streamlit
+
+Reload the app. You should see the login form, and the analysis only after entering the password.
+
+
+
+
+
+
+
 
 ## Where to go next
 
